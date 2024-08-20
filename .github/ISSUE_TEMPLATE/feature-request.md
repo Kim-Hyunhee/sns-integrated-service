@@ -1,9 +1,9 @@
 ---
-name: "[title] / body"
+name: Feature request
 about: Suggest an idea for this project
 title: ''
 labels: ''
-assignees: urimJ
+assignees: ''
 
 ---
 
