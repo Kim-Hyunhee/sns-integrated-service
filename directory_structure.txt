@@ -1,0 +1,40 @@
+.
+├── README.md
+├── directory_structure.txt
+├── docs
+│   └── pull_request_template.md
+├── nest-cli.json
+├── package-lock.json
+├── package.json
+├── src
+│   ├── app.controller.ts
+│   ├── app.module.ts
+│   ├── app.service.ts
+│   ├── config
+│   │   └── database.config.ts
+│   ├── main.ts
+│   └── modules
+│       ├── feed
+│       │   ├── feed.controller.ts
+│       │   ├── feed.entity.ts
+│       │   ├── feed.module.ts
+│       │   └── feed.service.ts
+│       ├── user
+│       │   ├── user.controller.ts
+│       │   ├── user.entity.ts
+│       │   ├── user.module.ts
+│       │   └── user.service.ts
+│       └── verification
+│           ├── dto
+│           │   └── sendCode.dto.ts
+│           ├── verification.controller.ts
+│           ├── verification.entity.ts
+│           ├── verification.module.ts
+│           └── verification.service.ts
+├── test
+│   ├── app.e2e-spec.ts
+│   └── jest-e2e.json
+├── tsconfig.build.json
+└── tsconfig.json
+
+10 directories, 28 files
