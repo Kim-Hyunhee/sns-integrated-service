@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Feed } from './feed.entity';
@@ -68,5 +68,24 @@ export class FeedService {
     queryBuilder.skip(skipAmount).take(PAGE_SIZE);
 
     return await queryBuilder.getMany();
+  }
+
+  async getFeed({ id }: { id: number }) {
+    const feed = await this.feedsRepository.findOne({ where: { feedId: id } });
+
+    if (!feed) {
+      throw new NotFoundException('해당 게시글을 찾을 수 없습니다.'); // 404 상태코드
+    } else {
+      return feed;
+    }
+  }
+
+  async updateFeedViewCount({ id }: { id: number }) {
+    const feed = await this.getFeed({ id });
+
+    return await this.feedsRepository.update(
+      { feedId: id },
+      { viewCount: feed.viewCount + 1 },
+    );
   }
 }
