@@ -140,4 +140,38 @@ export class FeedService {
       }
     }
   }
+
+  async updateFeedShareCount({ id }: { id: number }) {
+    const feed = await this.getFeed({ id });
+    try {
+      if (feed.type === 'facebook') {
+        await getFacebookFeed.put('share');
+      } else if (feed.type === 'twitter') {
+        await getTwitterFeed.put('share');
+      } else if (feed.type === 'instagram') {
+        await getinstagramFeed.put('share');
+      } else {
+        await getThreadsFeed.put('share');
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 403) {
+        await this.feedsRepository.update(
+          { feedId: id },
+          {
+            shareCount: feed.shareCount + 1,
+          },
+        );
+        // like count 가 +1 된 feed를 다시 가져와서 return 해준다.
+        const updatedFeed = await this.getFeed({ id });
+
+        return {
+          success: true,
+          updatedFeed,
+        };
+      } else {
+        // 다른 오류는 그대로 throw
+        throw error;
+      }
+    }
+  }
 }
