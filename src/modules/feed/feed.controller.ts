@@ -30,4 +30,9 @@ export class FeedController {
   async patchFeedLikeCount(@Param('id', ParseIntPipe) id: number) {
     return await this.feedService.updateFeedLikeCount({ id });
   }
+
+  @Patch(':id/shareCount')
+  async patchFeedShareCount(@Param('id', ParseIntPipe) id: number) {
+    return await this.feedService.updateFeedShareCount({ id });
+  }
 }
