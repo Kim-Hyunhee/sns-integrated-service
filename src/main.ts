@@ -17,6 +17,7 @@ async function bootstrap() {
 
   // Swagger 설정
   const config = new DocumentBuilder()
+    .addBearerAuth()
     .setTitle('P1J3 API')
     .setDescription('API documentation for SNS integrated service')
     .setVersion('1.0')

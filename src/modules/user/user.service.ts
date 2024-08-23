@@ -1,19 +1,29 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
-import { Register } from '@app/auth/dto/auth.dto';
+import { LoginDto, RegisterDto } from './dto/auth.dto';
 import { uuidv7 } from 'uuidv7';
+import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private jwtService: JwtService,
   ) {}
 
-  async register(register: Register) {
-    const { email, account, password } = register; // 올바른 이메일 구조인지 검증
+  // 사용자 회원가입
+  async register(register: RegisterDto) {
+    const { email, account, password } = register; // DTO에서 올바른 이메일 구조인지 검증
 
     // 계정이 고유한지 확인
     const hasAccount = await this.userRepository.findOne({
@@ -80,6 +90,29 @@ export class UserService {
       success: true,
       statusCode: HttpStatus.CREATED,
       message: '회원가입이 완료되었습니다.',
+    };
+  }
+
+  // 사용자 로그인
+  async login(login: LoginDto) {
+    const { account, password } = login;
+
+    // 가입된 계정인지 확인
+    const user = await this.userRepository.findOne({ where: { account } });
+    if (!user) {
+      throw new NotFoundException('가입되지 않은 계정입니다.');
+    }
+
+    // 비밀번호 확인
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('비밀번호가 틀렸습니다.');
+    }
+
+    const payload = { sub: user.userId, username: user.account };
+    console.log(`로그인 완료 (계정: ${account})`);
+    return {
+      access_token: await this.jwtService.signAsync(payload),
     };
   }
 }
