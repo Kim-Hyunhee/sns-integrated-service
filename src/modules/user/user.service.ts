@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { Register } from '@app/auth/dto/auth.dto';
+import { uuidv7 } from 'uuidv7';
 
 @Injectable()
 export class UserService {
@@ -59,9 +60,13 @@ export class UserService {
     // 현재 시간
     const createdAt = new Date();
 
+    const uuidString = uuidv7(); // uuidv7
+    const userId = Buffer.from(uuidString, 'hex');
+
     // 사용자 데이터 추가
     const newUser = this.userRepository.create({
       account: account,
+      userId: userId,
       email: email,
       password: password,
       createdAt: createdAt,

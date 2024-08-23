@@ -1,9 +1,15 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+  GoneException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SendCodeDto } from './dto/sendCode.dto';
 import { User } from '../user/user.entity';
 import { Verification } from './verification.entity';
+import { VerifyCodeDto } from './dto/verify.dto';
 
 @Injectable()
 export class VerificationService {
@@ -15,10 +21,15 @@ export class VerificationService {
   ) {}
 
   async sendCode(sendCodeDto: SendCodeDto) {
-    const { email } = sendCodeDto;
+    const { userId } = sendCodeDto;
+
+    // userId는 Hex 형식
+    const bufferUserId = Buffer.from(userId, 'hex'); // Hex를 Buffer로 변환
 
     // 이메일이 유효한지 확인
-    const user = await this.usersRepository.findOne({ where: { email } });
+    const user = await this.usersRepository.findOne({
+      where: { userId: bufferUserId },
+    });
     if (!user) {
       throw new UnauthorizedException('해당 유저가 존재하지 않습니다.'); // 401 상태코드
     }
@@ -32,7 +43,7 @@ export class VerificationService {
 
     // 기존에 Verification 데이터가 있는지 확인
     let verification = await this.verificationRepository.findOne({
-      where: { user: user },
+      where: { user },
     });
 
     if (verification) {
@@ -43,7 +54,7 @@ export class VerificationService {
     } else {
       // Verification 데이터가 없으면 새로 생성
       verification = this.verificationRepository.create({
-        user: user, // userId 대신 User객체 참조 -> 객체 지향적 방식
+        user,
         verificationCode: verificationCode,
         expiredAt: expiredAt,
         createdAt: createdAt,
@@ -53,11 +64,38 @@ export class VerificationService {
     // Verification 데이터 저장
     await this.verificationRepository.save(verification);
 
-    // 이메일로 인증 코드를 전송하는 로직 (콘솔에 출력)
-    console.log(`Verification code sent to ${email}: ${verificationCode}`);
+    // 인증 코드를 전송하는 로직 (콘솔에 출력)
+    console.log(
+      `Verification code sent to userId ${userId}: ${verificationCode}`,
+    );
 
     return {
       verificationCode,
+    };
+  }
+
+  async verifyCode(verifyCodeDto: VerifyCodeDto) {
+    const { verificationCode } = verifyCodeDto;
+
+    const verification = await this.verificationRepository.findOne({
+      where: { verificationCode },
+    });
+
+    if (!verification) {
+      throw new BadRequestException('인증코드가 잘못되었습니다.');
+    }
+
+    const currentTime = new Date();
+
+    if (verification.expiredAt < currentTime) {
+      throw new GoneException('인증코드가 만료되었습니다.');
+    }
+
+    verification.isConfirmed = true;
+    await this.verificationRepository.save(verification);
+
+    return {
+      message: '인증이 성공하였습니다.',
     };
   }
 }
