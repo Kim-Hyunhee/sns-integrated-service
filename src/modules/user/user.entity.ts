@@ -11,6 +11,8 @@ import { uuidv7 } from 'uuidv7';
 import { Buffer } from 'buffer';
 import { InjectRepository } from '@nestjs/typeorm';
 
+import * as bcrypt from 'bcrypt'; // 비밀번호 암호화
+
 @Entity()
 export class User {
   @PrimaryColumn({ type: 'binary', length: 16 })
@@ -59,6 +61,14 @@ export class User {
         this.userId = uuidBuffer;
         unique = true;
       }
+    }
+  }
+
+  // 비밀번호 암호화
+  @BeforeInsert()
+  private async hashPassword() {
+    if (this.password) {
+      this.password = await bcrypt.hash(this.password, 10);
     }
   }
 }
