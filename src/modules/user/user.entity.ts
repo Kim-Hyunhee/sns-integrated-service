@@ -10,9 +10,6 @@ import { Verification } from '../verification/verification.entity';
 import { uuidv7 } from 'uuidv7';
 import { Buffer } from 'buffer';
 import { InjectRepository } from '@nestjs/typeorm';
-
-import * as bcrypt from 'bcrypt';
-
 import * as bcrypt from 'bcrypt'; // 비밀번호 암호화
 
 @Entity()
