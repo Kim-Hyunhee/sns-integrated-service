@@ -1,4 +1,11 @@
-import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Query,
+} from '@nestjs/common';
 import { FeedService } from './feed.service';
 import { GetFeedDto } from './dto/getFeed.dto';
 import { ApiTags } from '@nestjs/swagger';
@@ -17,5 +24,10 @@ export class FeedController {
   async GetFeedDto(@Param('id', ParseIntPipe) id: number) {
     await this.feedService.updateFeedViewCount({ id });
     return await this.feedService.getFeed({ id });
+  }
+
+  @Patch(':id/likeCount')
+  async patchFeedLikeCount(@Param('id', ParseIntPipe) id: number) {
+    return await this.feedService.updateFeedLikeCount({ id });
   }
 }

@@ -8,5 +8,6 @@ import { Feed } from './feed.entity';
   imports: [TypeOrmModule.forFeature([Feed])],
   providers: [FeedService],
   controllers: [FeedController],
+  exports: [TypeOrmModule],
 })
 export class FeedModule {}
