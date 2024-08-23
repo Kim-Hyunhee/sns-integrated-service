@@ -1,4 +1,15 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
+import { FeedService } from './feed.service';
+import { GetFeedDto } from './dto/getFeed.dto';
+import { ApiTags } from '@nestjs/swagger';
 
-@Controller('feed')
-export class FeedController {}
+@ApiTags('feeds')
+@Controller('feeds')
+export class FeedController {
+  constructor(private readonly feedService: FeedService) {}
+
+  @Get()
+  async getManyFeed(@Query() query: GetFeedDto) {
+    return await this.feedService.fetchManyFeed(query);
+  }
+}
