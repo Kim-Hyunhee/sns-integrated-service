@@ -2,6 +2,24 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Feed } from './feed.entity';
+import axios from 'axios';
+
+const getFacebookFeed = axios.create({
+  baseURL: 'https://www.facebook.com/',
+  withCredentials: true,
+});
+const getTwitterFeed = axios.create({
+  baseURL: 'https://www.twitter.com/',
+  withCredentials: true,
+});
+const getinstagramFeed = axios.create({
+  baseURL: 'https://www.instagram.com/',
+  withCredentials: true,
+});
+const getThreadsFeed = axios.create({
+  baseURL: 'https://www.threads.net/',
+  withCredentials: true,
+});
 
 @Injectable()
 export class FeedService {
@@ -87,5 +105,73 @@ export class FeedService {
       { feedId: id },
       { viewCount: feed.viewCount + 1 },
     );
+  }
+
+  async updateFeedLikeCount({ id }: { id: number }) {
+    const feed = await this.getFeed({ id });
+    try {
+      if (feed.type === 'facebook') {
+        await getFacebookFeed.put('like');
+      } else if (feed.type === 'twitter') {
+        await getTwitterFeed.put('like');
+      } else if (feed.type === 'instagram') {
+        await getinstagramFeed.put('like');
+      } else {
+        await getThreadsFeed.put('like');
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 403) {
+        await this.feedsRepository.update(
+          { feedId: id },
+          {
+            likeCount: feed.likeCount + 1,
+          },
+        );
+        // like count 가 +1 된 feed를 다시 가져와서 return 해준다.
+        const updatedFeed = await this.getFeed({ id });
+
+        return {
+          success: true,
+          updatedFeed,
+        };
+      } else {
+        // 다른 오류는 그대로 throw
+        throw error;
+      }
+    }
+  }
+
+  async updateFeedShareCount({ id }: { id: number }) {
+    const feed = await this.getFeed({ id });
+    try {
+      if (feed.type === 'facebook') {
+        await getFacebookFeed.put('share');
+      } else if (feed.type === 'twitter') {
+        await getTwitterFeed.put('share');
+      } else if (feed.type === 'instagram') {
+        await getinstagramFeed.put('share');
+      } else {
+        await getThreadsFeed.put('share');
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 403) {
+        await this.feedsRepository.update(
+          { feedId: id },
+          {
+            shareCount: feed.shareCount + 1,
+          },
+        );
+        // like count 가 +1 된 feed를 다시 가져와서 return 해준다.
+        const updatedFeed = await this.getFeed({ id });
+
+        return {
+          success: true,
+          updatedFeed,
+        };
+      } else {
+        // 다른 오류는 그대로 throw
+        throw error;
+      }
+    }
   }
 }
