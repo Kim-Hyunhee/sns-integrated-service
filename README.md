@@ -157,11 +157,11 @@ npm run start
 ## API 명세
 |No| Title           | Method  | Path                       | Authorization |
 |---|-----------------|:-------:|----------------------------|:-------------:|
-|1|회원가입|`POST`|`/register`|X|
-|2|로그인|`POST`|`/login`|X|
-|3|사용자 프로필 확인|`GET`|`/profile`|O|
-|4|인증코드 전송|`POST`|`/sendCode`|X|
-|5|사용자 가입승인|`POST`|`/verify`|X|
+|1|회원가입|`POST`|`/users/register`|X|
+|2|로그인|`POST`|`/users/login`|X|
+|3|사용자 프로필 확인|`GET`|`/users/profile`|O|
+|4|인증코드 전송|`POST`|`/verification/sendCode`|X|
+|5|사용자 가입승인|`POST`|`/verification/verify`|X|
 |6|게시글 목록|`GET`|`/feeds`|O|
 |7|게시글 상세보기|`GET`|`/feeds/:id`|O|
 |8|게시글 좋아요|`PATCH`|`/feeds/:id/likeCount`|O|
