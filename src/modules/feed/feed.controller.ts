@@ -19,9 +19,7 @@ import { UserGuard } from '../user/user.guard';
 export class FeedController {
   constructor(private readonly feedService: FeedService) {}
 
-  @UseGuards(UserGuard)
   @Get()
-  @ApiBearerAuth()
   async getManyFeed(@Query() query: GetFeedDto) {
     return await this.feedService.fetchManyFeed(query);
   }
